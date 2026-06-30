@@ -3,9 +3,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from agent.tools.http_tool import HttpTool
+from agent.tools.registry import setup_registry
 
 
-tool = HttpTool(allowed_hosts=["httpbin.org"])
-result = tool.execute(method="GET", url="https://httpbin.org/get")
+registry = setup_registry(["owasp.org"])
+result = registry.call("http_request", method="GET", url="https://owasp.org/www-project-juice-shop/")
 print(result)

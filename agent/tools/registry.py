@@ -15,9 +15,12 @@ class ToolRegistry:
 	def list_tools(self) -> list[dict[str, Any]]:
 		return [
 			{
-				"name": tool.name,
-				"description": tool.description,
-				"parameters": tool.parameters,
+				"type": "function",
+				"function": {
+					"name": tool.name,
+					"description": tool.description,
+					"parameters": tool.parameters,
+				},
 			}
 			for tool in self._tools.values()
 		]
@@ -42,3 +45,10 @@ class ToolRegistry:
 
 
 registry = ToolRegistry()
+
+
+def setup_registry(allowed_hosts: list[str]) -> ToolRegistry:
+	from agent.tools.http_tool import HttpTool
+
+	registry.register(HttpTool(allowed_hosts=allowed_hosts))
+	return registry

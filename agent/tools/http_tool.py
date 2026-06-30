@@ -10,7 +10,7 @@ class HttpTool(Tool):
         self.parameters = {
             "method": {"type": "string", "description": "HTTP method (GET, POST, etc.)"},
             "url": {"type": "string", "description": "The URL to send the request to."},
-            "headers": {"type": "dict", "description": "Optional headers for the request."},
+            "headers": {"type": "object", "description": "Optional headers for the request."},
             "body": {"type": "string", "description": "Optional body for POST/PUT requests."},
         }
 
@@ -36,7 +36,7 @@ class HttpTool(Tool):
             }
         
         try:
-            response = requests.request(method, url, headers=headers, data=body)
+            response = requests.request(method, url, headers=headers, data=body, timeout=10)
             return {
                 "success": True,
                 "output": response.text,
