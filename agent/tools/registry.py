@@ -47,8 +47,22 @@ class ToolRegistry:
 registry = ToolRegistry()
 
 
-def setup_registry(allowed_hosts: list[str]) -> ToolRegistry:
+def setup_registry(
+	allowed_hosts: list[str] | None = None,
+	http_hosts: list[str] | None = None,
+	nmap_hosts: list[str] | None = None,
+) -> ToolRegistry:
 	from agent.tools.http_tool import HttpTool
+	from agent.tools.nmap_tool import NmapTool
 
-	registry.register(HttpTool(allowed_hosts=allowed_hosts))
+	# Support both old style (allowed_hosts) and new style (separate lists)
+	if allowed_hosts:
+		http_hosts = http_hosts or allowed_hosts
+		nmap_hosts = nmap_hosts or allowed_hosts
+
+	if http_hosts:
+		registry.register(HttpTool(allowed_hosts=http_hosts))
+	if nmap_hosts:
+		registry.register(NmapTool(allowed_hosts=nmap_hosts))
+
 	return registry
