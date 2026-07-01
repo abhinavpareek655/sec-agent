@@ -44,7 +44,7 @@ class SecAgentEnv(gym.Env):
     def __init__(
         self,
         orchestrator: Orchestrator,
-        default_goal: str = "Scan the target and identify useful services.",
+        default_goal: str = "Probe the target and identify useful application endpoints and services.",
         max_episode_steps: int = 10,
     ) -> None:
         self.orchestrator = orchestrator

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from agent.config import load_config
 from agent.llm.factory import build_provider
@@ -13,7 +18,6 @@ from agent.orchestrator import Orchestrator
 from agent.rl.env import SecAgentEnv
 from agent.tools.registry import setup_registry
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _shared_logger = EpisodeLogger()
 
 

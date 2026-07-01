@@ -11,11 +11,11 @@ targets:
     - scanme.nmap.org
 
 agent:
-  default_goal: "Check what is running on localhost:3000 and identify what kind of application it is."
+  default_goal: "Probe the Juice Shop app on localhost:3000, identify endpoints that return varied responses such as 200s, 401s, redirects, and Prometheus metrics, and summarize what the application exposes."
   max_episode_steps: 5
 
 training:
-  total_timesteps: 30
+  total_timesteps: 120
   n_steps: 12
   batch_size: 6
   n_epochs: 4
