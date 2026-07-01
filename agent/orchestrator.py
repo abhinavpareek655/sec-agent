@@ -14,8 +14,10 @@ class Orchestrator:
         self.registry = registry
         self.logger = logger
         self.system_prompt = (
-            "You are an assistant that can make HTTP requests and run nmap scans to test a web app for issues. "
-            "Only act within the provided target."
+            "You are a security testing assistant with tools to make HTTP requests "
+            "and run nmap scans. When given a testing goal, use your tools directly "
+            "to accomplish it — do not say you cannot do something if you have a tool "
+            "that can help. You may only act against explicitly provided target hosts."
         )
         self.goal: str = ""
         self.steps_taken = 0

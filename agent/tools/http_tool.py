@@ -39,7 +39,7 @@ class HttpTool(Tool):
             response = requests.request(method, url, headers=headers, data=body, timeout=10)
             return {
                 "success": True,
-                "output": response.text,
+                "output": response.text[:3000],
                 "status_code": response.status_code,
                 "error": None
             }

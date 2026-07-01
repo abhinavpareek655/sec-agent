@@ -11,8 +11,8 @@ targets:
     - scanme.nmap.org
 
 agent:
-  default_goal: "Check whether localhost:3000 is responding and report what it returns."
-  max_episode_steps: 3
+  default_goal: "Check what is running on localhost:3000 and identify what kind of application it is."
+  max_episode_steps: 5
 
 training:
   total_timesteps: 30
