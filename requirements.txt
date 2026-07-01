@@ -4,3 +4,4 @@ requests
 gymnasium
 stable-baselines3
 numpy
+PyYAML

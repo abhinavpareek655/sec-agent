@@ -1,0 +1,25 @@
+llm:
+  provider: groq
+  model: meta-llama/llama-4-scout-17b-16e-instruct
+
+targets:
+  http_hosts:
+    - localhost
+    - httpbin.org
+  nmap_hosts:
+    - localhost
+    - scanme.nmap.org
+
+agent:
+  default_goal: "Check whether localhost:3000 is responding and report what it returns."
+  max_episode_steps: 3
+
+training:
+  total_timesteps: 30
+  n_steps: 12
+  batch_size: 6
+  n_epochs: 4
+
+ollama:
+  base_url: http://localhost:11434
+  model: llama3.2
