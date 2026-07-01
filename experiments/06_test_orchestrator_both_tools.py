@@ -19,15 +19,15 @@ provider = GroqProvider(
     model_name="llama-3.3-70b-versatile",
 )
 registry = setup_registry(
-    http_hosts=[""],
-    nmap_hosts=["scanme.nmap.org"],
+    http_hosts=["localhost"],
+    nmap_hosts=["localhost"],
 )
 logger = EpisodeLogger()
 orchestrator = Orchestrator(provider, registry, logger=logger)
 log_path = Path(__file__).with_name("06_test_orchestrator_both_tools.jsonl")
 
 result = orchestrator.run(
-    "scan localhost for open ports, then check what's running on port 3000",
+    "scan localhost for open ports, then check what's running on localhost:3000",
     max_steps=10,
 )
 

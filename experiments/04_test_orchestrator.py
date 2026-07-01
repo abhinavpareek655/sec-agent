@@ -18,13 +18,13 @@ provider = GroqProvider(
     api_key=os.environ["GROQ_API_KEY"],
     model_name="llama-3.3-70b-versatile",
 )
-registry = setup_registry(allowed_hosts=["httpbin.org"])
+registry = setup_registry(http_hosts=["localhost"], nmap_hosts=["localhost"])
 logger = EpisodeLogger()
 orchestrator = Orchestrator(provider, registry, logger=logger)
 log_path = Path(__file__).with_name("04_test_orchestrator.jsonl")
 
 result = orchestrator.run(
-    "Check if httpbin.org/get is responding and tell me what it returns",
+    "Check if localhost:3000 is responding and tell me what it returns",
     max_steps=5,
 )
 

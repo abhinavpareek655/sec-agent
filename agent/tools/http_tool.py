@@ -40,6 +40,7 @@ class HttpTool(Tool):
             return {
                 "success": True,
                 "output": response.text,
+                "status_code": response.status_code,
                 "error": None
             }
         except Exception as e:
