@@ -167,3 +167,26 @@ def test_config_has_required_keys():
     assert "http_hosts" in cfg["targets"]
     assert "nmap_hosts" in cfg["targets"]
     assert "total_timesteps" in cfg["training"]
+    
+# ---------------------------------------------------------------------------
+# Extract JSON tool
+# ---------------------------------------------------------------------------
+    
+def test_extract_json_tool_success():
+    from agent.tools.extract_tool import ExtractJsonTool
+    tool = ExtractJsonTool()
+    result = tool.execute(
+        json_string='{"authentication": {"token": "abc123"}}',
+        key_path="authentication.token"
+    )
+    assert result["success"] is True
+    assert result["output"] == "abc123"
+
+def test_extract_json_tool_bad_key():
+    from agent.tools.extract_tool import ExtractJsonTool
+    tool = ExtractJsonTool()
+    result = tool.execute(
+        json_string='{"foo": "bar"}',
+        key_path="authentication.token"
+    )
+    assert result["success"] is False

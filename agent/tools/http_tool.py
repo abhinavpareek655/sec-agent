@@ -10,8 +10,10 @@ class HttpTool(Tool):
         self.parameters = {
             "method": {"type": "string", "description": "HTTP method (GET, POST, etc.)"},
             "url": {"type": "string", "description": "The URL to send the request to."},
-            "headers": {"type": "object", "description": "Optional headers for the request."},
-            "body": {"type": "string", "description": "Optional body for POST/PUT requests."},
+            "headers": {"type": "object", "description": "Optional headers."},
+            "body": {"type": "string", "description": "Optional raw string body."},
+            "json_body": {"type": "object", "description": "Optional JSON body (sets Content-Type automatically)."},
+            "token": {"type": "string", "description": "Optional Bearer token for Authorization header."},
         }
 
     def _is_allowed_url(self, url: str) -> bool:
@@ -24,6 +26,21 @@ class HttpTool(Tool):
         url = kwargs.get("url")
         headers = kwargs.get("headers", {})
         body = kwargs.get("body", None)
+        token = kwargs.get("token", None)
+        
+        if token:
+            headers = {**headers, "Authorization": f"Bearer {token}"}
+        
+        json_body = kwargs.get("json_body", None)
+        
+        if isinstance(json_body, str) and json_body.strip():
+            try:
+                import json as _json
+                json_body = _json.loads(json_body)
+            except _json.JSONDecodeError:
+                return {"success": False, "output": "", "error": "json_body is not valid JSON"}
+        else:
+            json_body = None 
         
         if not url:
             return {"success": False, "output": "", "error": "URL is required."}
@@ -36,12 +53,18 @@ class HttpTool(Tool):
             }
         
         try:
-            response = requests.request(method, url, headers=headers, data=body, timeout=10)
+            response = requests.request(
+                method, url,
+                headers=headers,
+                data=body if json_body is None else None,
+                json=json_body,
+                timeout=10,
+            )
             return {
                 "success": True,
                 "output": response.text[:3000],
                 "status_code": response.status_code,
-                "error": None
+                "error": None,
             }
         except Exception as e:
             return {
