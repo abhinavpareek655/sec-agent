@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from groq import Groq
+from groq import Groq, BadRequestError
 from agent.llm.base import LLMProvider, LLMResponse
 
 
@@ -16,20 +16,26 @@ class GroqProvider(LLMProvider):
         self,
         messages: list[dict],
         tools: list[dict] | None = None,
-        temperature: float = 1,
+        temperature: float = 0.7,
         max_tokens: int = 1024,
         **kwargs,
     ) -> LLMResponse:
-        completion = self.client.chat.completions.create(
-            model=self.model_name,
-            messages=messages,
-            tools=tools,
-            temperature=temperature,
-            max_completion_tokens=max_tokens,
-            top_p=1,
-            stream=False,
-            stop=None
-        )
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                tools=tools,
+                temperature=temperature,
+                max_completion_tokens=max_tokens,
+                top_p=1,
+                stream=False,
+                stop=None
+            )
+        except BadRequestError as e:
+            return LLMResponse(
+                content=f"[Tool generation failed: {e}. Please try a different approach.]",
+                tool_calls=None,
+            )
 
         message = completion.choices[0].message
         tool_calls = None

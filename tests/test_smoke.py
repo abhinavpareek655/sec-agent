@@ -15,6 +15,7 @@ from agent.orchestrator import Orchestrator
 from agent.rl.env import SecAgentEnv
 from agent.tools.registry import ToolRegistry
 from agent.tools.http_tool import HttpTool
+from agent.tools.scoreboard_tool import ScoreboardPollTool
 from agent.tools.security import is_host_allowed, is_target_valid
 
 
@@ -75,6 +76,68 @@ def test_http_tool_requires_url():
     result = tool.execute(method="GET")
     assert result["success"] is False
     assert "URL is required" in result["error"]
+
+
+def test_scoreboard_poll_tool_baseline(monkeypatch):
+    tool = ScoreboardPollTool(allowed_hosts=["localhost"])
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return [
+                {"id": 1, "name": "Scoreboard", "solved": False},
+                {"id": 2, "name": "Confidential Document", "solved": False},
+            ]
+
+    monkeypatch.setattr("agent.tools.scoreboard_tool.requests.get", lambda *args, **kwargs: FakeResponse())
+
+    result = tool.execute(url="http://localhost/api/Challenges")
+    assert result["success"] is True
+    assert result["baseline"] is True
+    assert result["solved_count"] == 0
+    assert result["newly_solved"] == []
+
+
+def test_scoreboard_poll_tool_detects_solved_delta(monkeypatch):
+    tool = ScoreboardPollTool(allowed_hosts=["localhost"])
+
+    class FirstResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return [
+                {"id": 1, "name": "Scoreboard", "solved": False},
+                {"id": 2, "name": "Confidential Document", "solved": False},
+            ]
+
+    class SecondResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return [
+                {"id": 1, "name": "Scoreboard", "solved": False},
+                {"id": 2, "name": "Confidential Document", "solved": True},
+            ]
+
+    responses = [FirstResponse(), SecondResponse()]
+
+    def fake_get(*args, **kwargs):
+        return responses.pop(0)
+
+    monkeypatch.setattr("agent.tools.scoreboard_tool.requests.get", fake_get)
+
+    first = tool.execute(url="http://localhost/api/Challenges")
+    second = tool.execute(url="http://localhost/api/Challenges")
+
+    assert first["baseline"] is True
+    assert second["baseline"] is False
+    assert second["solved_count"] == 1
+    assert second["newly_solved"] == [{"id": 2, "name": "Confidential Document"}]
+    assert second["changed"] == [{"id": 2, "name": "Confidential Document", "solved": True}]
 
 
 # ---------------------------------------------------------------------------
@@ -190,3 +253,17 @@ def test_extract_json_tool_bad_key():
         key_path="authentication.token"
     )
     assert result["success"] is False
+
+def test_extract_json_tool_empty():
+    from agent.tools.extract_tool import ExtractJsonTool
+    tool = ExtractJsonTool()
+    result = tool.execute(json_string="", key_path="token")
+    assert result["success"] is False
+
+def test_extract_json_tool_regex_fallback():
+    from agent.tools.extract_tool import ExtractJsonTool
+    tool = ExtractJsonTool()
+    mangled = '{"token": "eyJ0eXAiOiJKV1Q.payload.signature" CORRUPTED'
+    result = tool.execute(json_string=mangled, key_path="token")
+    assert result["success"] is True
+    assert result["output"] == "eyJ0eXAiOiJKV1Q.payload.signature"
