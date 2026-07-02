@@ -6,8 +6,12 @@ from typing import Any
 
 
 class EpisodeLogger:
-    def __init__(self) -> None:
+    def __init__(self, auto_save_path: str | Path | None = None) -> None:
         self._steps: list[dict[str, Any]] = []
+        self._auto_save_path = Path(auto_save_path) if auto_save_path is not None else None
+
+    def set_auto_save_path(self, path: str | Path | None) -> None:
+        self._auto_save_path = Path(path) if path is not None else None
 
     def log_step(
         self,
@@ -30,6 +34,9 @@ class EpisodeLogger:
             step["tool_result"] = tool_result
 
         self._steps.append(step)
+
+        if self._auto_save_path is not None:
+            self.save(self._auto_save_path)
 
     def save(self, path: str | Path) -> None:
         output_path = Path(path)

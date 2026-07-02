@@ -53,8 +53,11 @@ def setup_registry(
     nmap_hosts: list[str] | None = None,
 ) -> ToolRegistry:
 	from agent.tools.http_tool import HttpTool
+	from agent.tools.login_vector_tool import LoginVectorTool
 	from agent.tools.nmap_tool import NmapTool
 	from agent.tools.extract_tool import ExtractJsonTool
+	from agent.tools.scoreboard_tool import ScoreboardGetChallengeTool
+	from agent.tools.scoreboard_tool import ScoreboardListUnsolvedTool
 	from agent.tools.scoreboard_tool import ScoreboardPollTool
 
 	# Support both old style (allowed_hosts) and new style (separate lists)
@@ -64,7 +67,10 @@ def setup_registry(
 
 	if http_hosts:
 		registry.register(HttpTool(allowed_hosts=http_hosts))
+		registry.register(LoginVectorTool(allowed_hosts=http_hosts))
 		registry.register(ScoreboardPollTool(allowed_hosts=http_hosts))
+		registry.register(ScoreboardListUnsolvedTool(allowed_hosts=http_hosts))
+		registry.register(ScoreboardGetChallengeTool(allowed_hosts=http_hosts))
 	if nmap_hosts:
 		registry.register(NmapTool(allowed_hosts=nmap_hosts))
 

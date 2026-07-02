@@ -1,6 +1,7 @@
 llm:
-  provider: groq
-  model: meta-llama/llama-4-scout-17b-16e-instruct
+  provider: ollama
+  base_url: https://a35d-34-126-155-207.ngrok-free.app/
+  model: llama3.1:8b
 
 targets:
   http_hosts:
@@ -21,5 +22,5 @@ training:
   n_epochs: 4
 
 ollama:
-  base_url: http://localhost:11434
-  model: llama3.2
+  base_url: https://a35d-34-126-155-207.ngrok-free.app/
+  model: llama3.1:8b
